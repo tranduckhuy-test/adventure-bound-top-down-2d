@@ -21,7 +21,7 @@ public class KnockBack : MonoBehaviour
                 difference = difference.normalized * thrust;
                 hit.AddForce(difference, ForceMode2D.Impulse);
 
-                if (other.TryGetComponent<Enemy>(out var enemyScript) && this.gameObject.CompareTag("Player"))
+                if (other.TryGetComponent<Enemy>(out var enemyScript))
                 {
                     enemyScript.currentState = EnemyState.stagger;
                     enemyScript.Knock(hit, nockTime);
@@ -29,7 +29,6 @@ public class KnockBack : MonoBehaviour
                 }
                 if (other.TryGetComponent<PlayerController>(out var playerScript))
                 {
-                    Debug.Log("Player Hit");
                     playerScript.currentState = PlayerState.stagger;
                     playerScript.Knock(nockTime);
                     playerScript.TakeDame(damage);
