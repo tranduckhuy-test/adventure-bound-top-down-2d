@@ -6,6 +6,12 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/Menu.unity
+    guid: 40248d4b3b9422a498ce5da20bd9956b
+  - enabled: 1
     path: Assets/Scenes/ForestMap.unity
+    guid: 23f7f4487f9582a4ea25d1c5f02f2c58
+  - enabled: 1
+    path: Assets/Scenes/LavaMap.unity
     guid: 8c9cfa26abfee488c85f1582747f6a02
   m_configObjects: {}

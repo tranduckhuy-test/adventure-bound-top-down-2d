@@ -17,12 +17,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float attackSpeed = 0.45f;
     [SerializeField] private int health = 5;
 
+    private SoundManager soundManager;
     private PlayerControls playerControls;
     public PlayerState currentState;
     private Rigidbody2D myRigidbody;
     private Vector2 change;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
+
 
 
     private void Awake()
@@ -32,9 +34,10 @@ public class PlayerController : MonoBehaviour
         animator = GetComponent<Animator>();
         myRigidbody = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        soundManager = GameObject.FindGameObjectWithTag("Audio").GetComponent<SoundManager>();
+        
         animator.SetFloat("moveX", 0);
         animator.SetFloat("moveY", -1);
-
     }
 
     private void OnEnable()
@@ -48,6 +51,7 @@ public class PlayerController : MonoBehaviour
         if (playerControls.Player.Attack.triggered && currentState != PlayerState.attack
            && currentState != PlayerState.stagger)
         {
+            soundManager.PlaySound2D("Woosh");
             StartCoroutine(AttackCo());
         }
     }
