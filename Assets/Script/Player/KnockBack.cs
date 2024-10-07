@@ -4,7 +4,7 @@ public class KnockBack : MonoBehaviour
 {
     [SerializeField] private float thrust;
     [SerializeField] private float nockTime;
-    [SerializeField] private int damage;
+    [SerializeField] private float damage;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -24,14 +24,14 @@ public class KnockBack : MonoBehaviour
                 if (other.TryGetComponent<Enemy>(out var enemyScript))
                 {
                     enemyScript.currentState = EnemyState.stagger;
-                    enemyScript.Knock(hit, nockTime);
-                    enemyScript.TakeDamage(damage);
+                    enemyScript.Knock(hit, nockTime, damage);
+                    //enemyScript.TakeDamage(damage);
                 }
                 if (other.TryGetComponent<PlayerController>(out var playerScript))
                 {
                     playerScript.currentState = PlayerState.stagger;
-                    playerScript.Knock(nockTime);
-                    playerScript.TakeDame(damage);
+                    playerScript.Knock(nockTime, damage);
+                    //playerScript.TakeDame(damage);
                 }
             }
         }

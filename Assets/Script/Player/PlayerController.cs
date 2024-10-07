@@ -15,7 +15,6 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float speed = 1.0f;
     [SerializeField] private float attackSpeed = 0.45f;
-    [SerializeField] private int health = 5;
 
     private SoundManager soundManager;
     private PlayerControls playerControls;
@@ -24,10 +23,11 @@ public class PlayerController : MonoBehaviour
     private Vector2 change;
     private Animator animator;
     private SpriteRenderer spriteRenderer;
+	public FloatValue currentHealth;
+	public Signal playerHealthSignal;
 
 
-
-    private void Awake()
+	private void Awake()
     {
         playerControls = new PlayerControls();
         currentState = PlayerState.walk;
@@ -99,9 +99,22 @@ public class PlayerController : MonoBehaviour
         myRigidbody.MovePosition(targetPos);
     }
 
-    public void Knock(float knockTime)
+    public void Knock(float knockTime, float damage)
     {
-        StartCoroutine(KnockCo(knockTime));
+		currentHealth.RuntimeValue -= damage;
+		playerHealthSignal.Raise();
+        //StartCoroutine(KnockCo(knockTime));
+        if (currentHealth.RuntimeValue > 0)
+        {
+
+            StartCoroutine(KnockCo(knockTime));
+        }
+        else
+        {
+            animator.SetTrigger("death");
+			myRigidbody.simulated = false;
+			//this.gameObject.SetActive(false);
+        }
     }
 
     private IEnumerator KnockCo(float knockTime)
@@ -115,10 +128,11 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void TakeDame(int damage)
+    public void TakeDame(float damage)
     {
-        health -= damage;
-        if (health <= 0)
+        currentHealth.initialValue -= damage;
+        playerHealthSignal.Raise();
+        if (currentHealth.initialValue <= 0)
         {
             if (change.x < 0)
             {
