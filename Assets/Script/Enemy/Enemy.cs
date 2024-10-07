@@ -3,7 +3,7 @@ using UnityEngine;
 
 public abstract class Enemy : MonoBehaviour
 {
-    public int health;
+    public float health;
     public string enemyName;
     public int baseAttack;
     public float moveSpeed;
@@ -12,11 +12,17 @@ public abstract class Enemy : MonoBehaviour
     public float attackRadius;
     public Transform homePosition;
     public EnemyState currentState;
+    public FloatValue maxHealth;
 
     public bool isHit;
     public bool isDead;
 
-    public virtual void TakeDamage(int damage)
+	private void Awake()
+	{
+		health = maxHealth.initialValue;
+	}
+
+	public virtual void TakeDamage(float damage)
     {
         health -= damage;
         isHit = true;
@@ -39,9 +45,10 @@ public abstract class Enemy : MonoBehaviour
         Destroy(gameObject);
     }
 
-    public void Knock(Rigidbody2D myRigidbody, float knockTime)
+    public void Knock(Rigidbody2D myRigidbody, float knockTime, float damage)
     {
         StartCoroutine(KnockCo(myRigidbody, knockTime));
+        TakeDamage(damage);
     }
 
     private IEnumerator KnockCo(Rigidbody2D myRigidbody, float knockTime)
