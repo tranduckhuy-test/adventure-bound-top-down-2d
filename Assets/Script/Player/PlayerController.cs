@@ -101,7 +101,8 @@ public class PlayerController : MonoBehaviour
 
     public void Knock(float knockTime, float damage)
     {
-		currentHealth.RuntimeValue -= damage;
+        soundManager.PlaySound2D("ReceiveDamage");
+        currentHealth.RuntimeValue -= damage;
 		playerHealthSignal.Raise();
         //StartCoroutine(KnockCo(knockTime));
         if (currentHealth.RuntimeValue > 0)
@@ -111,9 +112,19 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
+            soundManager.PlaySound2D("Death");
             animator.SetTrigger("death");
-			myRigidbody.simulated = false;
-			//this.gameObject.SetActive(false);
+            if (change.x < 0)
+            {
+                spriteRenderer.flipX = true;
+            }
+            else if (change.x > 0)
+            {
+                spriteRenderer.flipX = false;
+            }
+            myRigidbody.simulated = false;
+            GetComponent<Collider2D>().enabled = false;
+            //this.gameObject.SetActive(false);
         }
     }
 
@@ -128,27 +139,27 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    public void TakeDame(float damage)
-    {
-        currentHealth.initialValue -= damage;
-        playerHealthSignal.Raise();
-        if (currentHealth.initialValue <= 0)
-        {
-            if (change.x < 0)
-            {
-                spriteRenderer.flipX = true;
-            }
-            else if (change.x > 0)
-            {
-                spriteRenderer.flipX = false;
-            }
+    //public void TakeDame(float damage)
+    //{
+    //    currentHealth.initialValue -= damage;
+    //    playerHealthSignal.Raise();
+    //    if (currentHealth.initialValue <= 0)
+    //    {
+    //        if (change.x < 0)
+    //        {
+    //            spriteRenderer.flipX = true;
+    //        }
+    //        else if (change.x > 0)
+    //        {
+    //            spriteRenderer.flipX = false;
+    //        }
 
-            animator.SetTrigger("death");
-            myRigidbody.simulated = false;
-        }
+    //        animator.SetTrigger("death");
+    //        myRigidbody.simulated = false;
+    //    }
 
-        StartCoroutine(TakeDamageCo());
-    }
+    //    StartCoroutine(TakeDamageCo());
+    //}
 
     private IEnumerator TakeDamageCo()
     {

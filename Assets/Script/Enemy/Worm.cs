@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class Slime : Enemy
+public class Worm : Enemy
 {
     private void Awake()
     {
