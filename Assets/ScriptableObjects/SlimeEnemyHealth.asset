@@ -10,6 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a117179b21feaf347a1f9f89fede76bb, type: 3}
-  m_Name: TwoHitEnemyHealth
+  m_Name: SlimeEnemyHealth
   m_EditorClassIdentifier: 
-  initialValue: 1
+  initialValue: 3
+  RuntimeValue: 3
