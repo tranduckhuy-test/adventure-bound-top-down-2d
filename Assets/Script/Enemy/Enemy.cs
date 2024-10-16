@@ -27,7 +27,7 @@ public abstract class Enemy : MonoBehaviour
         if (!target.GetComponent<Collider2D>().enabled)
         {
             MoveTowardsTarget(homePosition.position);
-            ChangeState(EnemyState.walk);
+            ChangeState(EnemyState.idle);
             return;
         }
 
@@ -44,8 +44,8 @@ public abstract class Enemy : MonoBehaviour
         else
         {
             MoveTowardsTarget(homePosition.position);
-            ChangeState(EnemyState.walk);
-            //animator.SetBool("isMoving", false);
+            ChangeState(EnemyState.idle);
+            animator.SetBool("isMoving", false);
         }
     }
 
