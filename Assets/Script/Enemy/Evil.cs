@@ -3,11 +3,12 @@ using UnityEngine;
 
 public class Evil : Enemy
 {
-	private float timer;
-	private Vector3 fixedScale; // Lưu scale cố định (0.5)
 	[SerializeField] private float thrust;
-	[SerializeField] private float nockTime;
+	[SerializeField] private float knockTime;
 	[SerializeField] private float damage;
+	[SerializeField] private float attackCooldown = 0.5f; // Thời gian chờ giữa các lần tấn công
+
+	private bool isAttacking = false; // Để kiểm tra xem có đang tấn công hay không
 
 	private void Awake()
 	{
@@ -18,75 +19,98 @@ public class Evil : Enemy
 		target = GameObject.FindWithTag("Player").transform;
 		homePosition = new GameObject("HomePosition").transform;
 		homePosition.position = transform.position;
-
-		// Thiết lập scale cố định là 0.5
-		fixedScale = new Vector3(0.5f, 0.5f, 0.5f);
-		transform.localScale = fixedScale; // Đặt scale ban đầu là 0.5
 	}
-
-	private void Update()
-	{
-		// Tính khoảng cách giữa Evil và Player
-		float distance = Vector2.Distance(transform.position, target.transform.position);
-
-		if (distance < this.chaseRadius)
-		{
-			// Flip Evil theo trục x dựa trên vị trí của Player
-			
-
-			timer += Time.deltaTime;
-			if (timer > 2)
-			{
-				timer = 0;
-				StartCoroutine(Attack());
-			}
-		}
-	}
-
-	// Hàm để Flip Evil hướng về phía Player
-	private void FlipTowardsPlayer()
-	{
-		// Kiểm tra vị trí của Player so với vị trí của Evil để flip hướng
-		if (target.transform.position.x > transform.position.x)
-		{
-			// Nếu Player ở bên phải, mặt Evil sẽ hướng về phải
-			transform.localScale = new Vector3(Mathf.Abs(fixedScale.x), fixedScale.y, fixedScale.z);
-		}
-		else
-		{
-			// Nếu Player ở bên trái, mặt Evil sẽ hướng về trái
-			transform.localScale = new Vector3(-Mathf.Abs(fixedScale.x), fixedScale.y, fixedScale.z);
-		}
-	}
-
-	private IEnumerator Attack()
-	{
-		FlipTowardsPlayer();
-		// Tấn công Player
-		animator.SetBool("attacking", true);
-
-		// Bật collider khi bắt đầu tấn công
-		//var attackCollider = GetComponentInChildren<Collider2D>();
-		//if (attackCollider != null)
-		//{
-		//	attackCollider.enabled = true;  // Bật collider để va chạm với Player
-		//}
-
-		yield return new WaitForSeconds(0.1f);  // Thời gian thực hiện đòn đánh
-
-		animator.SetBool("attacking", false);
-
-		// Tắt collider sau khi tấn công để tránh va chạm không mong muốn
-		//if (attackCollider != null)
-		//{
-		//	attackCollider.enabled = false;
-		//}
-	}
-
 
 	private void FixedUpdate()
 	{
 		CheckDistance();
 		UpdateAnimation();
 	}
+
+	public override void CheckDistance()
+	{
+		if (!target.GetComponent<Collider2D>().enabled)
+		{
+			MoveTowardsTarget(homePosition.position);
+			ChangeState(EnemyState.idle);
+			return;
+		}
+
+		float distance = Vector3.Distance(target.position, transform.position);
+		if (distance <= attackRadius && !isAttacking)
+		{
+			StartCoroutine(Attack());
+		}
+		else if (distance <= chaseRadius)
+		{
+			if (currentState == EnemyState.idle || currentState == EnemyState.walk)
+			{
+				MoveTowardsTarget(target.position);
+				ChangeState(EnemyState.walk);
+			}
+		}
+		else
+		{
+			MoveTowardsTarget(homePosition.position);
+			ChangeState(EnemyState.idle);
+			animator.SetBool("isMoving", false);
+		}
+	}
+
+	private IEnumerator Attack()
+	{
+		isAttacking = true;
+		ChangeState(EnemyState.attack);
+		animator.SetBool("attacking", true);
+
+		yield return new WaitForSeconds(0.1f); // Chờ 1 chút trước khi gây sát thương để đồng bộ với animation
+
+		// Xác định hướng của Evil so với mục tiêu (Player)
+		Vector2 direction = (target.position - transform.position).normalized;
+
+		if (target.GetComponent<PlayerController>() != null)
+		{
+			// Gây sát thương tùy thuộc vào hướng của Evil
+			if (Mathf.Abs(direction.x) > Mathf.Abs(direction.y))
+			{
+				if (direction.x > 0)
+				{
+					// Attack về phía bên phải
+					Debug.Log("Attack to the right");
+				}
+				else
+				{
+					// Attack về phía bên trái
+					Debug.Log("Attack to the left");
+				}
+			}
+			else
+			{
+				if (direction.y > 0)
+				{
+					// Attack lên phía trên
+					Debug.Log("Attack upwards");
+				}
+				else
+				{
+					// Attack xuống phía dưới
+					Debug.Log("Attack downwards");
+				}
+			}
+
+			// Gọi Knock với sát thương và thời gian tấn công
+			target.GetComponent<PlayerController>().Knock(knockTime, damage);
+		}
+
+		// Chờ cho đến khi animation tấn công hoàn tất
+		yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+
+		animator.SetBool("attacking", false);
+		ChangeState(EnemyState.idle);
+
+		// Cooldown giữa các lần tấn công
+		yield return new WaitForSeconds(attackCooldown);
+		isAttacking = false;
+	}
+
 }
